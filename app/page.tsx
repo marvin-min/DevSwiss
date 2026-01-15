@@ -164,9 +164,9 @@ export default function Home() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-          {/* 查询文档 */}
-          <div className="lg:col-span-1 bg-white rounded shadow-sm p-3">
+        <div className="flex gap-3">
+          {/* 查询文档 - 固定左侧 */}
+          <div className="w-1/3 bg-white rounded shadow-sm p-3 sticky top-0 h-screen overflow-y-auto">
             <h2 className="text-lg font-semibold text-gray-800 mb-2">查询文档</h2>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               查询条件 (JSON)
@@ -206,7 +206,7 @@ export default function Home() {
           </div>
 
           {/* 文档列表 */}
-          <div className="lg:col-span-2 bg-white rounded shadow-sm p-3">
+          <div className="w-2/3 bg-white rounded shadow-sm p-3">
             <h2 className="text-lg font-semibold text-gray-800 mb-2">
               文档列表 ({documents.length})
             </h2>
