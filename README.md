@@ -1,6 +1,10 @@
-# 个人工具包
+# DevSwiss 🛠️
 
-一个精心设计的工具集合，帮助你更高效地完成日常任务。基于Next.js + TypeScript + Tailwind CSS构建。
+**开发者瑞士军刀** - 一个功能强大的工具集合，就像瑞士军刀一样，为开发者提供多种实用工具。
+
+[![Next.js](https://img.shields.io/badge/Next.js-14.1.0-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3.0-38B2AC)](https://tailwindcss.com/)
 
 ## 功能特性
 

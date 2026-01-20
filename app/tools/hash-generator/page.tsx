@@ -77,7 +77,7 @@ export default function HashGenerator() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-4">
           <nav className="text-sm text-gray-600">
-            <Link href="/" className="hover:text-blue-600">个人工具包</Link>
+            <Link href="/" className="hover:text-blue-600">DevSwiss</Link>
             <span className="mx-2">›</span>
             <span>Hash 生成器</span>
           </nav>

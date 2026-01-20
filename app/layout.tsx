@@ -3,8 +3,8 @@ import Link from 'next/link';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '个人工具包',
-  description: '一个包含多种实用工具的个人工具集合',
+  title: 'DevSwiss - 开发者瑞士军刀',
+  description: 'DevSwiss - 一个功能强大的工具集合，就像瑞士军刀一样，为开发者提供多种实用工具',
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
         <nav className="bg-white shadow-sm border-b">
           <div className="container mx-auto px-4 py-3">
             <Link href="/" className="text-xl font-bold text-gray-900 hover:text-blue-600">
-              🧰 个人工具包
+              🛠️ DevSwiss
             </Link>
           </div>
         </nav>

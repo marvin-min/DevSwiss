@@ -66,9 +66,9 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">个人工具包</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">🛠️ DevSwiss</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            一个精心设计的工具集合，帮助你更高效地完成日常任务
+            开发者瑞士军刀 - 一个功能强大的工具集合，为开发者提供多种实用工具
           </p>
         </div>
 
