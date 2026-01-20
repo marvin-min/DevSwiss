@@ -1,28 +1,42 @@
-# MongoDB Web 客户端
+# 个人工具包
 
-一个简单美观的MongoDB Web管理界面，使用Next.js + TypeScript + Tailwind CSS构建。
+一个精心设计的工具集合，帮助你更高效地完成日常任务。基于Next.js + TypeScript + Tailwind CSS构建。
 
 ## 功能特性
 
-✅ **查询文档** - 使用JSON查询语法查询数据  
-✅ **插入文档** - 添加新文档到集合  
-✅ **更新文档** - 批量更新符合条件的文档  
-✅ **删除文档** - 删除单个文档  
-✅ **美观界面** - 使用Tailwind CSS设计的现代化UI  
-✅ **实时反馈** - 操作成功/失败的即时提示  
+### 🗄️ 数据库工具
+- **MongoDB 客户端** - 连接和管理MongoDB数据库，进行CRUD操作
+
+### 📄 开发工具
+- **JSON 格式化** - 格式化、验证和美化JSON数据
+
+### 🔐 编码工具
+- **Base64 编码/解码** - Base64字符串的编码和解码
+- **URL 编码/解码** - URL字符串的编码和解码
+
+### 🔒 加密工具
+- **Hash 生成器** - 生成MD5、SHA-1、SHA-256等哈希值
+
+### 🔑 安全工具
+- **密码生成器** - 生成强密码和随机字符串
+
+### 📝 文本工具
+- **文本处理** - 文本格式转换、大小写转换等
+
+### 🎨 设计工具
+- **颜色选择器** - 颜色选择和转换工具
 
 ## 快速开始
 
 ### 1. 安装依赖
 
 ```bash
-cd mongodb-client
 npm install
 ```
 
-### 2. 配置环境变量
+### 2. 配置环境变量 (可选)
 
-复制 `.env.local.example` 为 `.env.local` 并配置你的MongoDB连接：
+如果要使用MongoDB客户端，需要配置环境变量：
 
 ```bash
 cp .env.local.example .env.local
@@ -41,13 +55,53 @@ MONGODB_DB=test_db
 npm run dev
 ```
 
-访问 [http://localhost:3000](http://localhost:3000) 查看应用。
+访问 [http://localhost:4001](http://localhost:4001) 查看应用。
 
-## 使用说明
+## 项目结构
 
-### 查询文档
-在"查询条件"框中输入MongoDB查询语法：
-```json
+```
+app/
+├── page.tsx              # 工具导航主页
+├── layout.tsx            # 应用布局
+├── globals.css           # 全局样式
+└── tools/                # 工具页面
+    ├── mongodb/          # MongoDB客户端
+    ├── json-formatter/   # JSON格式化工具
+    ├── base64/           # Base64编码/解码
+    ├── hash-generator/   # Hash生成器
+    ├── password-generator/ # 密码生成器
+    └── ...               # 更多工具
+api/
+└── documents/            # MongoDB API路由
+lib/
+└── mongodb.ts            # MongoDB连接配置
+```
+
+## 开发指南
+
+### 添加新工具
+
+1. 在 `app/tools/` 下创建新目录
+2. 创建 `page.tsx` 文件
+3. 在主页 `app/page.tsx` 的 `tools` 数组中添加工具信息
+
+### 工具规范
+
+- 使用TypeScript编写
+- 遵循现有的UI设计风格
+- 包含使用说明
+- 支持响应式设计
+
+## 技术栈
+
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Styling**: Tailwind CSS
+- **Database**: MongoDB (可选)
+- **Deployment**: Vercel/Netlify
+
+## 许可证
+
+MIT License
 {}                          // 查询所有
 {"age": {"$gt": 20}}       // 年龄大于20
 {"name": "张三"}            // 精确匹配

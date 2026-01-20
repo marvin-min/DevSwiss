@@ -1,9 +1,10 @@
 {
-  "name": "mongodb-client",
+  "name": "personal-toolkit",
   "version": "0.1.0",
   "private": true,
+  "description": "A personal toolkit with various useful tools for development and daily tasks",
   "scripts": {
-    "dev": "next dev",
+    "dev": "PORT=4001 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
