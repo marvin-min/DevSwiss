@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 interface Document {
@@ -21,18 +21,38 @@ export default function MongoDBTool() {
   const [updateData, setUpdateData] = useState('{\n  "$set": {\n    "age": 26\n  }\n}');
 
   const fetchDocuments = async () => {
+    console.log('fetchDocuments called');
     setLoading(true);
     setError('');
     try {
-      let queryStr = query.trim();
-      if (queryStr === '') queryStr = '{}';
-      const queryObj = JSON.parse(queryStr);
+      let queryObj;
+      try {
+        let queryStr = query.trim();
+        if (queryStr === '') queryStr = '{}';
+        queryObj = JSON.parse(queryStr);
+      } catch (parseErr) {
+        console.warn('Query JSON parse error:', parseErr);
+        queryObj = {};
+        setError('查询条件JSON格式错误，已使用默认空对象查询');
+      }
 
-      let sortStr = sort.trim();
-      const sortObj = sortStr ? JSON.parse(sortStr) : null;
+      let sortObj;
+      try {
+        let sortStr = sort.trim();
+        if (sortStr === '') {
+          sortObj = null;
+        } else {
+          sortObj = JSON.parse(sortStr);
+        }
+      } catch (parseErr) {
+        console.warn('Sort JSON parse error:', parseErr);
+        sortObj = null;
+        setError('排序条件JSON格式错误，已忽略排序');
+      }
 
       const limitNum = parseInt(limit) || 100;
-      const res = await fetch('/api/documents', {
+      console.log('About to fetch:', { collection, queryObj, sortObj, limitNum });
+      const res = await fetch(window.location.origin + '/api/documents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -43,7 +63,9 @@ export default function MongoDBTool() {
           limit: limitNum
         })
       });
+      console.log('Response status:', res.status);
       const data = await res.json();
+      console.log('Response data:', data);
       if (data.success) {
         setDocuments(data.documents);
       } else {
@@ -144,6 +166,21 @@ export default function MongoDBTool() {
     fetchDocuments();
   }, []);
 
+  const handleFetchClick = () => {
+    fetchDocuments();
+  };
+
+  // Fallback: if click events are swallowed, trigger on pointerdown but debounce to avoid duplicates
+  const lastFetchCallRef = useRef<number>(0);
+  const handlePointerDownFallback = () => {
+    const now = Date.now();
+    if (now - (lastFetchCallRef.current || 0) < 700) return;
+    lastFetchCallRef.current = now;
+    fetchDocuments();
+  };
+
+  // (Debug listeners removed)
+
   function escapeForShell(s: string) {
     return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
   }
@@ -155,6 +192,14 @@ export default function MongoDBTool() {
     const limitNum = parseInt(l as string) || 10;
     const cmd = `mongosh --eval "use ${dbName}; db.${col}.find(${queryStr}).sort(${sortStr}).limit(${limitNum}).forEach(printjson)"`;
     return cmd;
+  }
+
+  // Safely compute the mongosh command to avoid render-time exceptions
+  let mongoshCmd = '';
+  try {
+    mongoshCmd = generateMongoshCommand(collection, query, sort, limit);
+  } catch (e) {
+    mongoshCmd = '';
   }
 
   return (
@@ -225,7 +270,14 @@ export default function MongoDBTool() {
               <div className="flex justify-between items-center mb-1">
                 <label className="text-xs font-medium text-gray-700">生成 mongosh 命令</label>
                 <button
-                  onClick={() => navigator.clipboard.writeText(generateMongoshCommand(collection, query, sort, limit))}
+                  onClick={async () => {
+                    try {
+                      if (!mongoshCmd) return;
+                      await navigator.clipboard.writeText(mongoshCmd);
+                    } catch (err: any) {
+                      setError('复制命令失败: ' + (err && err.message ? err.message : String(err)));
+                    }
+                  }}
                   title="复制命令"
                   className="bg-gray-200 hover:bg-gray-300 rounded p-1"
                 >
@@ -234,14 +286,15 @@ export default function MongoDBTool() {
               </div>
               <textarea
                 readOnly
-                value={generateMongoshCommand(collection, query, sort, limit)}
+                value={mongoshCmd}
                 className="w-full px-2 py-2 text-xs font-mono border border-gray-300 rounded bg-gray-50 h-28"
               />
             </div>
 
             <div className="mb-4">
               <button
-                onClick={fetchDocuments}
+                onClick={handleFetchClick}
+                onPointerDown={handlePointerDownFallback}
                 disabled={loading}
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 text-sm rounded disabled:bg-gray-400"
               >
