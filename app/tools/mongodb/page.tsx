@@ -21,7 +21,6 @@ export default function MongoDBTool() {
   const [updateData, setUpdateData] = useState('{\n  "$set": {\n    "age": 26\n  }\n}');
 
   const fetchDocuments = async () => {
-    console.log('fetchDocuments called');
     setLoading(true);
     setError('');
     try {
@@ -51,7 +50,6 @@ export default function MongoDBTool() {
       }
 
       const limitNum = parseInt(limit) || 100;
-      console.log('About to fetch:', { collection, queryObj, sortObj, limitNum });
       const res = await fetch(window.location.origin + '/api/documents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -63,9 +61,7 @@ export default function MongoDBTool() {
           limit: limitNum
         })
       });
-      console.log('Response status:', res.status);
       const data = await res.json();
-      console.log('Response data:', data);
       if (data.success) {
         setDocuments(data.documents);
       } else {
