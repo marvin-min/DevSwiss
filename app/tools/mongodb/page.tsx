@@ -24,8 +24,13 @@ export default function MongoDBTool() {
     setLoading(true);
     setError('');
     try {
-      const queryObj = JSON.parse(query);
-      const sortObj = sort ? JSON.parse(sort) : null;
+      let queryStr = query.trim();
+      if (queryStr === '') queryStr = '{}';
+      const queryObj = JSON.parse(queryStr);
+
+      let sortStr = sort.trim();
+      const sortObj = sortStr ? JSON.parse(sortStr) : null;
+
       const limitNum = parseInt(limit) || 100;
       const res = await fetch('/api/documents', {
         method: 'POST',
@@ -139,6 +144,19 @@ export default function MongoDBTool() {
     fetchDocuments();
   }, []);
 
+  function escapeForShell(s: string) {
+    return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  }
+
+  function generateMongoshCommand(col: string, q: string, s: string, l: string) {
+    const dbName = process.env.NEXT_PUBLIC_MONGODB_DB || process.env.MONGODB_DB || 'test_db';
+    const queryStr = q || '{}';
+    const sortStr = s || '{}';
+    const limitNum = parseInt(l as string) || 10;
+    const cmd = `mongosh --eval "use ${dbName}; db.${col}.find(${queryStr}).sort(${sortStr}).limit(${limitNum}).forEach(printjson)"`;
+    return cmd;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-3">
@@ -185,32 +203,51 @@ export default function MongoDBTool() {
               className="w-full px-2 py-1.5 border border-gray-300 rounded font-mono text-xs mb-2 h-16"
               placeholder='例如: {"age": {"$gt": 20}}'
             />
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              排序 (JSON) 1:升序(从小到大), -1:降序(从大到小)
-            </label>
-            <textarea
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="w-full px-2 py-1.5 border border-gray-300 rounded font-mono text-xs mb-2 h-14"
-              placeholder='{"startTimeInSeconds": -1}'
-            />
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              限制数量
-            </label>
-            <input
-              type="number"
-              value={limit}
-              onChange={(e) => setLimit(e.target.value)}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded mb-2"
-              placeholder="10"
-            />
-            <button
-              onClick={fetchDocuments}
-              disabled={loading}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 text-sm rounded disabled:bg-gray-400"
-            >
-              {loading ? '查询中...' : '查询'}
-            </button>
+            <div className="mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">排序 (JSON)</label>
+              <textarea
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="w-full px-2 py-1.5 border border-gray-300 rounded font-mono text-xs h-14 mb-2"
+                placeholder='{"startTimeInSeconds": -1}'
+              />
+              <label className="block text-xs font-medium text-gray-700 mb-1">限制数量</label>
+              <input
+                type="number"
+                value={limit}
+                onChange={(e) => setLimit(e.target.value)}
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded"
+                placeholder="10"
+              />
+            </div>
+            {/* 生成 mongosh 命令（放在按钮上方，较大） */}
+            <div className="mb-2">
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-xs font-medium text-gray-700">生成 mongosh 命令</label>
+                <button
+                  onClick={() => navigator.clipboard.writeText(generateMongoshCommand(collection, query, sort, limit))}
+                  title="复制命令"
+                  className="bg-gray-200 hover:bg-gray-300 rounded p-1"
+                >
+                  📋
+                </button>
+              </div>
+              <textarea
+                readOnly
+                value={generateMongoshCommand(collection, query, sort, limit)}
+                className="w-full px-2 py-2 text-xs font-mono border border-gray-300 rounded bg-gray-50 h-28"
+              />
+            </div>
+
+            <div className="mb-4">
+              <button
+                onClick={fetchDocuments}
+                disabled={loading}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 text-sm rounded disabled:bg-gray-400"
+              >
+                {loading ? '查询中...' : '查询'}
+              </button>
+            </div>
           </div>
 
           {/* 文档列表 */}

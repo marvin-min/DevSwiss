@@ -59,7 +59,7 @@ const tools = [
   }
 ];
 
-const categories = [...new Set(tools.map(tool => tool.category))];
+const categories = Array.from(new Set(tools.map(tool => tool.category)));
 
 export default function Home() {
   return (
