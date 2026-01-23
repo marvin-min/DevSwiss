@@ -19,6 +19,7 @@ export default function MongoDBTool() {
   const [limit, setLimit] = useState('10');
   const [updateQuery, setUpdateQuery] = useState('{}');
   const [updateData, setUpdateData] = useState('{\n  "$set": {\n    "age": 26\n  }\n}');
+  const [activePanel, setActivePanel] = useState<'query' | 'insert'>('query');
 
   const fetchDocuments = async () => {
     setLoading(true);
@@ -79,7 +80,7 @@ export default function MongoDBTool() {
     setError('');
     try {
       const doc = JSON.parse(newDoc);
-      const res = await fetch('/api/documents', {
+      const res = await fetch(window.location.origin + '/api/documents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -107,7 +108,7 @@ export default function MongoDBTool() {
     try {
       const queryObj = JSON.parse(updateQuery);
       const updateObj = JSON.parse(updateData);
-      const res = await fetch('/api/documents', {
+      const res = await fetch(window.location.origin + '/api/documents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -136,7 +137,7 @@ export default function MongoDBTool() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/documents', {
+      const res = await fetch(window.location.origin + '/api/documents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -234,68 +235,129 @@ export default function MongoDBTool() {
         <div className="flex gap-3">
           {/* 查询文档 - 固定左侧 */}
           <div className="w-1/3 bg-white rounded shadow-sm p-3 sticky top-0 h-screen overflow-y-auto">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">查询文档</h2>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              查询条件 (JSON)
-            </label>
-            <textarea
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full px-2 py-1.5 border border-gray-300 rounded font-mono text-xs mb-2 h-16"
-              placeholder='例如: {"age": {"$gt": 20}}'
-            />
-            <div className="mb-2">
-              <label className="block text-xs font-medium text-gray-700 mb-1">排序 (JSON)</label>
-              <textarea
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="w-full px-2 py-1.5 border border-gray-300 rounded font-mono text-xs h-14 mb-2"
-                placeholder='{"startTimeInSeconds": -1}'
-              />
-              <label className="block text-xs font-medium text-gray-700 mb-1">限制数量</label>
-              <input
-                type="number"
-                value={limit}
-                onChange={(e) => setLimit(e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded"
-                placeholder="10"
-              />
-            </div>
-            {/* 生成 mongosh 命令（放在按钮上方，较大） */}
-            <div className="mb-2">
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-medium text-gray-700">生成 mongosh 命令</label>
-                <button
-                  onClick={async () => {
-                    try {
-                      if (!mongoshCmd) return;
-                      await navigator.clipboard.writeText(mongoshCmd);
-                    } catch (err: any) {
-                      setError('复制命令失败: ' + (err && err.message ? err.message : String(err)));
-                    }
-                  }}
-                  title="复制命令"
-                  className="bg-gray-200 hover:bg-gray-300 rounded p-1"
-                >
-                  📋
-                </button>
-              </div>
-              <textarea
-                readOnly
-                value={mongoshCmd}
-                className="w-full px-2 py-2 text-xs font-mono border border-gray-300 rounded bg-gray-50 h-28"
-              />
-            </div>
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">数据操作</h2>
 
-            <div className="mb-4">
-              <button
-                onClick={handleFetchClick}
-                onPointerDown={handlePointerDownFallback}
-                disabled={loading}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 text-sm rounded disabled:bg-gray-400"
-              >
-                {loading ? '查询中...' : '查询'}
-              </button>
+            {/* Accordion 组 */}
+            <div className="space-y-2">
+              {/* 查询面板 */}
+              <div className="border border-gray-200 rounded">
+                <button
+                  onClick={() => setActivePanel('query')}
+                  className={`w-full text-left font-medium py-2 px-3 text-sm flex items-center justify-between transition-colors ${
+                    activePanel === 'query'
+                      ? 'bg-blue-500 text-white rounded-t'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className={`transform transition-transform ${activePanel === 'query' ? 'rotate-90' : ''}`}>▶</span>
+                    <span>查询文档</span>
+                  </span>
+                  <span className={`transform transition-transform ${activePanel === 'query' ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+                {activePanel === 'query' && (
+                  <div className="p-3 bg-gray-50 border-t border-gray-200 animate-in slide-in-from-top-2 duration-200">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      查询条件 (JSON)
+                    </label>
+                    <textarea
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      className="w-full px-2 py-1.5 border border-gray-300 rounded font-mono text-xs mb-2 h-16"
+                      placeholder='例如: {"age": {"$gt": 20}}'
+                    />
+                    <div className="mb-2">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">排序 (JSON)</label>
+                      <textarea
+                        value={sort}
+                        onChange={(e) => setSort(e.target.value)}
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded font-mono text-xs h-14 mb-2"
+                        placeholder='{"startTimeInSeconds": -1}'
+                      />
+                      <label className="block text-xs font-medium text-gray-700 mb-1">限制数量</label>
+                      <input
+                        type="number"
+                        value={limit}
+                        onChange={(e) => setLimit(e.target.value)}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded"
+                        placeholder="10"
+                      />
+                    </div>
+                    {/* 生成 mongosh 命令（放在按钮上方，较大） */}
+                    <div className="mb-2">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-xs font-medium text-gray-700">生成 mongosh 命令</label>
+                        <button
+                          onClick={async () => {
+                            try {
+                              if (!mongoshCmd) return;
+                              await navigator.clipboard.writeText(mongoshCmd);
+                            } catch (err: any) {
+                              setError('复制命令失败: ' + (err && err.message ? err.message : String(err)));
+                            }
+                          }}
+                          title="复制命令"
+                          className="bg-gray-200 hover:bg-gray-300 rounded p-1"
+                        >
+                          📋
+                        </button>
+                      </div>
+                      <textarea
+                        readOnly
+                        value={mongoshCmd}
+                        className="w-full px-2 py-2 text-xs font-mono border border-gray-300 rounded bg-gray-50 h-28"
+                      />
+                    </div>
+
+                    <button
+                      onClick={handleFetchClick}
+                      onPointerDown={handlePointerDownFallback}
+                      disabled={loading}
+                      className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 text-sm rounded disabled:bg-gray-400 transition-colors"
+                    >
+                      {loading ? '查询中...' : '查询'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 添加数据面板 */}
+              <div className="border border-gray-200 rounded">
+                <button
+                  onClick={() => setActivePanel('insert')}
+                  className={`w-full text-left font-medium py-2 px-3 text-sm flex items-center justify-between transition-colors ${
+                    activePanel === 'insert'
+                      ? 'bg-green-500 text-white rounded-t'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className={`transform transition-transform ${activePanel === 'insert' ? 'rotate-90' : ''}`}>▶</span>
+                    <span>添加数据</span>
+                  </span>
+                  <span className={`transform transition-transform ${activePanel === 'insert' ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+                {activePanel === 'insert' && (
+                  <div className="p-3 bg-gray-50 border-t border-gray-200 animate-in slide-in-from-top-2 duration-200">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      新文档 (JSON)
+                    </label>
+                    <textarea
+                      value={newDoc}
+                      onChange={(e) => setNewDoc(e.target.value)}
+                      className="w-full px-2 py-1.5 border border-gray-300 rounded font-mono text-xs mb-2 h-24"
+                      placeholder='例如: {"name": "张三", "age": 25}'
+                    />
+                    <button
+                      onClick={insertDocument}
+                      disabled={loading}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-3 text-sm rounded disabled:bg-gray-400 transition-colors"
+                    >
+                      {loading ? '添加中...' : '添加文档'}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
