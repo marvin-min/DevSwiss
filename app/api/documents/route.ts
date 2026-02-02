@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { getDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 export async function POST(request: NextRequest) {
@@ -7,8 +7,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, collection, query, document, update, id, sort, limit } = body;
 
-    const client = await clientPromise;
-    const db = client.db(process.env.MONGODB_DB || 'test_db');
+    const db = await getDatabase();
     const coll = db.collection(collection);
 
     switch (action) {

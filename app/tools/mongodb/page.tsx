@@ -203,10 +203,18 @@ export default function MongoDBTool() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-3">
         <div className="mb-4">
-          <nav className="text-sm text-gray-600">
-            <Link href="/" className="hover:text-blue-600">DevSwiss</Link>
-            <span className="mx-2">›</span>
-            <span>MongoDB 客户端</span>
+          <nav className="text-sm text-gray-600 flex items-center justify-between">
+            <div>
+              <Link href="/" className="hover:text-blue-600">DevSwiss</Link>
+              <span className="mx-2">›</span>
+              <span>MongoDB 客户端</span>
+            </div>
+            <Link 
+              href="/tools/mongodb-config"
+              className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded transition-colors"
+            >
+              ⚙️ 连接配置
+            </Link>
           </nav>
         </div>
         <h1 className="text-2xl font-bold text-gray-800 mb-3">MongoDB 客户端</h1>
